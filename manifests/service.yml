@@ -3,7 +3,7 @@ kind: Service
 metadata:
     name: profile
 spec:
-    type: ClusterIP
+    type: LoadBalancer
     ports:
     - port: 8080
     selector:
