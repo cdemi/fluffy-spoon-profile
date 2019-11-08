@@ -1,6 +1,6 @@
 version: '3.4'
 
 services:
-  registration:
+  profile:
     ports:
       - "5000:8080"

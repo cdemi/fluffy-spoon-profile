@@ -6,14 +6,14 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.0.100 AS publish
 WORKDIR /sln
 COPY NuGet.Config .
 COPY packages/ ./packages
-COPY ["src/fluffyspoon.registration/fluffyspoon.registration.csproj", "src/fluffyspoon.registration/"]
-RUN dotnet restore "src/fluffyspoon.registration/fluffyspoon.registration.csproj"
+COPY ["src/fluffyspoon.profile/fluffyspoon.profile.csproj", "src/fluffyspoon.profile/"]
+RUN dotnet restore "src/fluffyspoon.profile/fluffyspoon.profile.csproj"
 COPY . .
-WORKDIR "src/fluffyspoon.registration"
+WORKDIR "src/fluffyspoon.profile"
 ARG VERSION=1
-RUN dotnet publish "fluffyspoon.registration.csproj" /p:Version=$VERSION -c Release -o /app/publish
+RUN dotnet publish "fluffyspoon.profile.csproj" /p:Version=$VERSION -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "fluffyspoon.registration.dll"]
+ENTRYPOINT ["dotnet", "fluffyspoon.profile.dll"]

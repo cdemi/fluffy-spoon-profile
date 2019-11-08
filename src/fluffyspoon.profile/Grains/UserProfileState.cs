@@ -1,11 +1,13 @@
-namespace fluffyspoon.registration.ViewModels
+namespace fluffyspoon.profile.Grains
 {
-    public class RegisterUserModel
+    public class UserProfileState
     {
         public string Name { get; set; }
         
         public string Surname { get; set; }
-        
+
         public string Email { get; set; }
+        
+        public bool IsActive { get; set; }
     }
 }
