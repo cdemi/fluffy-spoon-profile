@@ -11,5 +11,5 @@ spec:
       paths:
       - backend:
           serviceName: profile
-          servicePort: 80
+          servicePort: 8080
         path: /
