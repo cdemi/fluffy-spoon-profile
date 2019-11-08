@@ -25,7 +25,7 @@ namespace fluffyspoon.profile.Grains
         public Task OnNextAsync(UserRegisteredEvent item, StreamSequenceToken token = null)
         {
             State.Name = item.Name;
-            State.Surname = item.Email;
+            State.Surname = item.Surname;
             State.Email = item.Email;
 
             return Task.CompletedTask;
