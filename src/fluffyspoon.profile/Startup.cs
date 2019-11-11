@@ -1,4 +1,6 @@
 using demofluffyspoon.contracts;
+using demofluffyspoon.contracts.Grains;
+using demofluffyspoon.contracts.Models;
 using fluffyspoon.profile.Grains;
 using GiG.Core.DistributedTracing.Web.Extensions;
 using GiG.Core.HealthChecks.Extensions;
@@ -8,6 +10,7 @@ using GiG.Core.Orleans.Clustering.Extensions;
 using GiG.Core.Orleans.Clustering.Kubernetes.Extensions;
 using GiG.Core.Orleans.Silo.Extensions;
 using GiG.Core.Orleans.Streams.Extensions;
+using GiG.Core.Orleans.Streams.Kafka.Extensions;
 using GiG.Core.Web.Hosting.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -37,29 +40,35 @@ namespace fluffyspoon.profile
             // Health Checks
             services.ConfigureHealthChecks(Configuration)
                 .AddHealthChecks();
-
+            
             // Forwarded Headers
             services.ConfigureForwardedHeaders();
-           
+
             // Add Orleans Streams Services
             services.AddStreamFactory();
         }
-        
+
         // This method gets called by the runtime. Use this method to configure Orleans.
         public static void ConfigureOrleans(HostBuilderContext ctx, ISiloBuilder builder)
         {
             var configuration = ctx.Configuration;
 
             builder.ConfigureCluster(configuration)
-                .UseDashboard(x =>
-                {
-                    x.BasePath = "/dashboard";
-                    x.HostSelf = false;
-                })
+                .UseDashboard(x => x.HostSelf = false)
                 .ConfigureEndpoints()
                 .AddAssemblies(typeof(ProfileGrain))
-                .AddSimpleMessageStreamProvider(Constants.StreamProviderName)
+                .AddAssemblies(typeof(IProfileGrain))
+                .AddKafka(Constants.StreamProviderName)
+                .WithOptions(options =>
+                {
+                    options.FromConfiguration(ctx.Configuration);
+                    options.AddTopic(nameof(UserVerifiedEvent));
+                    options.AddTopic(nameof(UserRegisteredEvent));
+                })
+                .AddJson()
+                .Build()
                 .AddMemoryGrainStorage("PubSubStore")
+                .AddMemoryGrainStorageAsDefault()
                 .UseMembershipProvider(configuration, x =>
                 {
                     x.ConfigureConsulClustering(configuration);
@@ -75,11 +84,7 @@ namespace fluffyspoon.profile
             app.UseCorrelation();
             app.UseHealthChecks();
             app.UseInfoManagement();
-            app.UseOrleansDashboard(new DashboardOptions()
-            {
-                BasePath = "/dashboard",
-                HostSelf = false
-            });
+            app.UseOrleansDashboard(new DashboardOptions { BasePath = "/dashboard" });
         }
     }
 }
