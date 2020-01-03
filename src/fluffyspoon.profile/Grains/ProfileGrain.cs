@@ -4,6 +4,7 @@ using demofluffyspoon.contracts.Models;
 using fluffyspoon.profile.States;
 using Microsoft.Extensions.Logging;
 using Orleans;
+using Orleans.EventSourcing;
 using Orleans.Streams;
 using System;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace fluffyspoon.profile.Grains
 {
     [ImplicitStreamSubscription(nameof(UserRegisteredEvent))]
     [ImplicitStreamSubscription(nameof(UserVerifiedEvent))]
-    public class ProfileGrain : Grain<UserProfileState>, IProfileGrain, IAsyncObserver<UserRegisteredEvent>,
+    public class ProfileGrain : JournaledGrain<UserProfileState>, IProfileGrain, IAsyncObserver<UserRegisteredEvent>,
         IAsyncObserver<UserVerifiedEvent>
     {
         private readonly ILogger<ProfileGrain> _logger;
@@ -39,28 +40,17 @@ namespace fluffyspoon.profile.Grains
 
         public Task OnNextAsync(UserRegisteredEvent item, StreamSequenceToken token = null)
         {
-            _logger.LogInformation("----------RECEIVED MESSAGE----------");
-            State.Name = item.Name;
-            State.Surname = item.Surname;
-            State.Email = item.Email;
+            RaiseEvent(item);
 
-            return Task.CompletedTask;
-            
-            //RaiseEvent(item);
-
-            //return ConfirmEvents();
-
+            return ConfirmEvents();
         }
 
-        public Task OnNextAsync(UserVerifiedEvent item, StreamSequenceToken token = null)
+        public async Task OnNextAsync(UserVerifiedEvent item, StreamSequenceToken token = null)
         {
-            State.IsActive = true;
-
-            return Task.CompletedTask;
+            RaiseEvent(item);
+            await ConfirmEvents();
             
-            //RaiseEvent(item);
-
-            //return ConfirmEvents();
+            _logger.LogInformation("{name} <{email}> is now active", State.Name, State.Email);
         }
 
         public Task OnCompletedAsync()
