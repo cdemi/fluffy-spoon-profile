@@ -27,10 +27,12 @@ namespace fluffyspoon.profile.Grains
         {
             var streamProvider = GetStreamProvider(Constants.StreamProviderName);
 
+            // Consumer
             var userRegisteredStream =
                 streamProvider.GetStream<UserRegisteredEvent>(this.GetPrimaryKey(), nameof(UserRegisteredEvent));
             await userRegisteredStream.SubscribeAsync(this);
 
+            // Consumer
             var userVerifiedStream =
                 streamProvider.GetStream<UserVerifiedEvent>(this.GetPrimaryKey(), nameof(UserVerifiedEvent));
             await userVerifiedStream.SubscribeAsync(this);
