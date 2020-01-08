@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace fluffyspoon.profile.Grains
 {
     [ImplicitStreamSubscription(nameof(UserRegisteredEvent))]
-    [ImplicitStreamSubscription(nameof(UserVerifiedEvent))]
+    [ImplicitStreamSubscription(nameof(UserVerificationEvent))]
     public class ProfileGrain : JournaledGrain<UserProfileState>, IProfileGrain, IAsyncObserver<UserRegisteredEvent>,
-        IAsyncObserver<UserVerifiedEvent>
+        IAsyncObserver<UserVerificationEvent>
     {
         private readonly ILogger<ProfileGrain> _logger;
 
@@ -33,9 +33,9 @@ namespace fluffyspoon.profile.Grains
             await userRegisteredStream.SubscribeAsync(this);
 
             // Consumer
-            var userVerifiedStream =
-                streamProvider.GetStream<UserVerifiedEvent>(this.GetPrimaryKey(), nameof(UserVerifiedEvent));
-            await userVerifiedStream.SubscribeAsync(this);
+            var userVerificationStream =
+                streamProvider.GetStream<UserVerificationEvent>(this.GetPrimaryKey(), nameof(UserVerificationEvent));
+            await userVerificationStream.SubscribeAsync(this);
 
             await base.OnActivateAsync();
         }
@@ -47,7 +47,7 @@ namespace fluffyspoon.profile.Grains
             return ConfirmEvents();
         }
 
-        public async Task OnNextAsync(UserVerifiedEvent item, StreamSequenceToken token = null)
+        public async Task OnNextAsync(UserVerificationEvent item, StreamSequenceToken token = null)
         {
             RaiseEvent(item);
             await ConfirmEvents();

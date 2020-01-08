@@ -24,9 +24,12 @@ namespace fluffyspoon.profile.States
             return this;
         }
         
-        public UserProfileState Apply(UserVerifiedEvent @event)
+        public UserProfileState Apply(UserVerificationEvent @event)
         {
-            IsActive = true;
+            if (@event.Status == UserVerificationStatusEnum.Verified)
+            {
+                IsActive = true;
+            }
 
             return this;
         }

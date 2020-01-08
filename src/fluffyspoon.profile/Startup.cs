@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans;
 using Orleans.Hosting;
+using Orleans.Streams.Kafka.Config;
 using OrleansDashboard;
 using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
 
@@ -39,7 +40,7 @@ namespace fluffyspoon.profile
             // Health Checks
             services.ConfigureHealthChecks(Configuration)
                 .AddHealthChecks();
-            
+
             // Forwarded Headers
             services.ConfigureForwardedHeaders();
         }
@@ -48,18 +49,22 @@ namespace fluffyspoon.profile
         public static void ConfigureOrleans(HostBuilderContext ctx, ISiloBuilder builder)
         {
             var configuration = ctx.Configuration;
+            var topicConfiguration = new TopicCreationConfig
+            {
+                AutoCreate = true,
+                Partitions = 8
+            };
 
             builder.ConfigureCluster(configuration)
                 .UseDashboard(x => x.HostSelf = false)
                 .ConfigureEndpoints()
                 .AddAssemblies(typeof(ProfileGrain))
-                .AddAssemblies(typeof(IProfileGrain))
                 .AddKafka(Constants.StreamProviderName)
                 .WithOptions(options =>
                 {
                     options.FromConfiguration(ctx.Configuration);
-                    options.AddTopic(nameof(UserVerifiedEvent));
-                    options.AddTopic(nameof(UserRegisteredEvent));
+                    options.AddTopic(nameof(UserVerificationEvent), topicConfiguration);
+                    options.AddTopic(nameof(UserRegisteredEvent), topicConfiguration);
                 })
                 .AddJson()
                 .Build()
@@ -80,7 +85,7 @@ namespace fluffyspoon.profile
             app.UseCorrelation();
             app.UseHealthChecks();
             app.UseInfoManagement();
-            app.UseOrleansDashboard(new DashboardOptions { BasePath = "/dashboard" });
+            app.UseOrleansDashboard(new DashboardOptions {BasePath = "/dashboard"});
         }
     }
 }
