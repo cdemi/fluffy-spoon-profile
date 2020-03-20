@@ -2,9 +2,9 @@ version: '3.4'
 
 services:
   profile:
-    image: fluffyspoon.profile
+    image: demofluffyspoon.profile
     build:
-      dockerfile: src/fluffyspoon.profile/Dockerfile
+      dockerfile: src/DemoFluffySpoon.Profile/Dockerfile
       context: ..
     environment:
       - ASPNETCORE_URLS=http://+:8080

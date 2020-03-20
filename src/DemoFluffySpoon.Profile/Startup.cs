@@ -1,7 +1,6 @@
-using demofluffyspoon.contracts;
-using demofluffyspoon.contracts.Grains;
-using demofluffyspoon.contracts.Models;
-using fluffyspoon.profile.Grains;
+using DemoFluffySpoon.Contracts;
+using DemoFluffySpoon.Contracts.Models;
+using DemoFluffySpoon.Profile.Grains;
 using GiG.Core.DistributedTracing.Web.Extensions;
 using GiG.Core.HealthChecks.Extensions;
 using GiG.Core.Hosting.Extensions;
@@ -20,7 +19,7 @@ using Orleans.Streams.Kafka.Config;
 using OrleansDashboard;
 using HostBuilderContext = Microsoft.Extensions.Hosting.HostBuilderContext;
 
-namespace fluffyspoon.profile
+namespace DemoFluffySpoon.Profile
 {
     public class Startup
     {
