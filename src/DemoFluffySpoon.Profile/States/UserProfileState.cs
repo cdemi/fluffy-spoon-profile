@@ -1,8 +1,7 @@
-using demofluffyspoon.contracts;
-using demofluffyspoon.contracts.Models;
 using System;
+using DemoFluffySpoon.Contracts.Models;
 
-namespace fluffyspoon.profile.States
+namespace DemoFluffySpoon.Profile.States
 {
     [Serializable]
     public class UserProfileState
@@ -15,23 +14,19 @@ namespace fluffyspoon.profile.States
         
         public bool IsActive { get; set; }
         
-        public UserProfileState Apply(UserRegisteredEvent @event)
+        public void Apply(UserRegisteredEvent @event)
         {
             Name = @event.Name;
             Surname = @event.Surname;
             Email = @event.Email;
-
-            return this;
         }
         
-        public UserProfileState Apply(UserVerificationEvent @event)
+        public void Apply(UserVerificationEvent @event)
         {
             if (@event.Status == UserVerificationStatusEnum.Verified)
             {
                 IsActive = true;
             }
-
-            return this;
         }
     }
 }

@@ -1,15 +1,15 @@
-using demofluffyspoon.contracts;
-using demofluffyspoon.contracts.Grains;
-using demofluffyspoon.contracts.Models;
-using fluffyspoon.profile.States;
+using System;
+using System.Threading.Tasks;
+using DemoFluffySpoon.Contracts;
+using DemoFluffySpoon.Contracts.Grains;
+using DemoFluffySpoon.Contracts.Models;
+using DemoFluffySpoon.Profile.States;
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.EventSourcing;
 using Orleans.Streams;
-using System;
-using System.Threading.Tasks;
 
-namespace fluffyspoon.profile.Grains
+namespace DemoFluffySpoon.Profile.Grains
 {
     [ImplicitStreamSubscription(nameof(UserRegisteredEvent))]
     [ImplicitStreamSubscription(nameof(UserVerificationEvent))]
@@ -22,7 +22,7 @@ namespace fluffyspoon.profile.Grains
         {
             _logger = logger;
         }
-        
+
         public override async Task OnActivateAsync()
         {
             var streamProvider = GetStreamProvider(Constants.StreamProviderName);
@@ -44,15 +44,16 @@ namespace fluffyspoon.profile.Grains
         {
             RaiseEvent(item);
 
-            return ConfirmEvents();
+            return Task.CompletedTask;
         }
 
-        public async Task OnNextAsync(UserVerificationEvent item, StreamSequenceToken token = null)
+        public Task OnNextAsync(UserVerificationEvent item, StreamSequenceToken token = null)
         {
             RaiseEvent(item);
-            await ConfirmEvents();
-            
-            _logger.LogInformation("{name} <{email}> is now active", State.Name, State.Email);
+
+            _logger.LogInformation("{name} <{email}> is now active", TentativeState.Name, TentativeState.Email);
+
+            return Task.CompletedTask;
         }
 
         public Task OnCompletedAsync()
